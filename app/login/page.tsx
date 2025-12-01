@@ -1,0 +1,121 @@
+"use client";
+import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+const Login = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const [registered, setRegistered] = useState(false);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+  const handleForm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setRegistered(false);
+
+    try {
+      const result = await signIn("credentials", {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError(result.error || "Invalid email or password");
+      } else {
+        setRegistered(true);
+        setFormData({ email: "", password: "" });
+
+        // Redirect after 1.5s
+        setTimeout(() => router.push("/"), 1500);
+      }
+    } catch (err) {
+      setError("Something went wrong!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (registered) {
+      const timer = setTimeout(() => setRegistered(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [registered]);
+  return (
+    <>
+      <div className="relative container mx-auto  min-h-screen flex items-center justify-center">
+        <form
+          onSubmit={handleForm}
+          className="w-full max-w-2xl h-fit px-4 md:px-6 py-4 bg-slate-800 rounded-lg mx-4"
+        >
+          <h2 className="text-4xl font-bold text-white ">LOGIN</h2>
+          <div className="mt-4">
+            <input
+              type="email"
+              placeholder="Enter email"
+              className="w-full h-14 rounded-full border border-white bg-slate-900 px-8"
+              name="email"
+              id="email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="mt-4">
+            <input
+              type="text"
+              placeholder="Enter password"
+              className="w-full h-14 rounded-full border border-white bg-slate-900 px-8"
+              name="password"
+              id="password"
+              value={formData.password}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="mt-2">
+            {error && <p className="text-red-500 text-md ">{error}</p>}
+          </div>
+          <div className="mt-8">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-14 rounded-full border border-white bg-blue-500 px-8 disabled:bg-blue-300"
+              id="loginBtn"
+            >
+              {loading ? "Loading..." : "Login"}
+            </button>
+          </div>
+          <div className="mt-2 text-center">
+            <p>
+              Create an New Account ?
+              <Link
+                href={"/register"}
+                className="text-inherit underline underline-offset-4"
+              >
+                Register
+              </Link>
+            </p>
+          </div>
+        </form>
+        {registered && (
+          <div className="absolute bg-slate-800 text-green-500 px-4 py-2 rounded-lg bottom-2 right-2 transition-all ">
+            Login Successfully
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default Login;
