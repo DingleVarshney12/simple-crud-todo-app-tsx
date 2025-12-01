@@ -42,7 +42,9 @@ export default function Home() {
         credentials: "include",
       });
       if (!res.ok) {
-        setError("Failed to create todo. Try again later.");
+        const data = await res.json();
+
+        setError(data.message || "Failed to create todo. Try again later.");
         setLoading(false);
         return;
       }
