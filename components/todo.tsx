@@ -38,6 +38,7 @@ const Todo = ({
           "Content-Type": "application/json",
         },
         body: JSON.stringify(updatedTodo),
+        credentials: "include",
       });
       if (!response.ok) throw new Error("Failed to update todo");
     } catch (error) {
@@ -73,6 +74,7 @@ const Todo = ({
     try {
       const response = await fetch(`/api/todos?todoId=${id}`, {
         method: "DELETE",
+        credentials: "include",
       });
 
       if (!response.ok) {

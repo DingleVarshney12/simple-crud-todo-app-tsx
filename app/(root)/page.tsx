@@ -39,6 +39,7 @@ export default function Home() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, userId: session?.user?.id }),
+        credentials: "include",
       });
 
       if (!res.ok) {
@@ -64,7 +65,9 @@ export default function Home() {
 
     const fetchTodos = async () => {
       try {
-        const res = await fetch(`/api/todos?userId=${session?.user?.id}`);
+        const res = await fetch(`/api/todos?userId=${session?.user?.id}`, {
+          credentials: "include",
+        });
         if (!res.ok) throw new Error("Failed to fetch todos");
         const data: TodoType[] = await res.json();
         setTodos(data);
