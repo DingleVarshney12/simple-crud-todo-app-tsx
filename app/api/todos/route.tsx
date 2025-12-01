@@ -6,7 +6,6 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get("x-forwarded-for") || "unknown";
-
     if (await rateLimit(ip, 5, 60)) {
       return NextResponse.json(
         { message: "Too many requests, slow down!" },
