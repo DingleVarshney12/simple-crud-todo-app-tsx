@@ -40,3 +40,60 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ message: error }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    await connectDb();
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("todoId");
+
+    if (!id) {
+      return NextResponse.json(
+        { message: "Todo ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const todo = await Todo.findById(id);
+    if (!todo) {
+      return NextResponse.json({ message: "Todo not found" }, { status: 404 });
+    }
+
+    await Todo.findByIdAndDelete(id);
+
+    return NextResponse.json(
+      { message: "Todo deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+export async function PUT(req: NextRequest) {
+  try {
+    await connectDb();
+    const { searchParams } = new URL(req.url);
+    const todoId = searchParams.get("todoId");
+
+    const { title, completed } = await req.json();
+    const updatedTodo = await Todo.findByIdAndUpdate(
+      todoId,
+      { title, completed },
+      { new: true }
+    );
+    if (!updatedTodo) {
+      return NextResponse.json({ message: "Todo not found" }, { status: 404 });
+    }
+    return NextResponse.json(updatedTodo, { status: 200 });
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
