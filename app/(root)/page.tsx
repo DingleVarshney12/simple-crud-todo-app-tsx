@@ -38,10 +38,9 @@ export default function Home() {
       const res = await fetch("/api/todos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, userId: session?.user?.id }),
+        body: JSON.stringify({ title }),
         credentials: "include",
       });
-
       if (!res.ok) {
         setError("Failed to create todo. Try again later.");
         setLoading(false);
