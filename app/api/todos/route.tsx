@@ -1,5 +1,4 @@
 import connectDb from "@/lib/db";
-import { rateLimit } from "@/lib/rateLimiter";
 import Todo from "@/models/todo.model";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
@@ -8,18 +7,12 @@ import { authOptions } from "../auth/[...nextauth]/route";
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session)
+
+    if (!session?.user?.id)
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    const ip = req.headers.get("x-forwarded-for") || "unknown";
-    if (await rateLimit(ip, 5, 60)) {
-      return NextResponse.json(
-        { message: "Too many requests" },
-        { status: 429 }
-      );
-    }
-
     await connectDb();
+
     const { title } = await req.json();
     if (!title)
       return NextResponse.json(
@@ -29,13 +22,15 @@ export async function POST(req: NextRequest) {
 
     const todo = await Todo.create({ title, userId: session.user.id });
     return NextResponse.json({ todo }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
+    console.error("POST /api/todos error:", error);
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: error.message || "Internal server error" },
       { status: 500 }
     );
   }
 }
+
 
 export async function GET(req: NextRequest) {
   try {
