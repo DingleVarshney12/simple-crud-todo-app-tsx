@@ -32,7 +32,7 @@ const Login = () => {
       });
 
       if (result?.error) {
-        setError(result.error || "Invalid email or password");
+        setError("Invalid email or password ,Make Sure to Register First");
       } else {
         setRegistered(true);
         setFormData({ email: "", password: "" });

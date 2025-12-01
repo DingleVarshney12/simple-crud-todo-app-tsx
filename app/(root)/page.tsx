@@ -9,7 +9,7 @@ interface TodoType {
   title: string;
   userId: string;
   completed: boolean;
-  createdAt: Date
+  createdAt: Date;
 }
 
 export default function Home() {
@@ -125,10 +125,10 @@ export default function Home() {
 
       <div className="todo-list flex flex-col space-y-4 items-center mt-4 bg-slate-900 max-w-5xl mx-auto border rounded-2xl py-4 px-1">
         {todos.length > 0 ? (
-          todos.map((todo) => (
+          todos.map((todo, idx) => (
             <>
               <Todo
-                key={todo._id}
+                key={idx}
                 id={todo._id}
                 initialTitle={todo.title}
                 initialCompleted={todo.completed}

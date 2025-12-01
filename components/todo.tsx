@@ -89,16 +89,18 @@ const Todo = ({
 
   return (
     <div className={`border-b  py-1 w-full ${loading ? "opacity-50" : ""}`}>
-      <p className="text-right mb-2">{date}</p>
+      <div className="flex items-center justify-between">
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={handleCheck}
+          className="w-6 h-6"
+        />
+        <p className="text-right mb-2">{date}</p>
+      </div>
       <div className="flex items-center justify-between flex-wrap space-x-1">
         {/* Checkbox and text */}
         <div className="flex items-center space-x-2 flex-1">
-          <input
-            type="checkbox"
-            checked={todo.completed}
-            onChange={handleCheck}
-            className="w-6 h-6"
-          />
           {isEditing ? (
             <input
               type="text"
