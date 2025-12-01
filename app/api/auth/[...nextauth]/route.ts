@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthConfig, Session } from "next-auth";
+import NextAuth, { NextAuthOptions, Session } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import connectDb from "@/lib/db";
@@ -13,10 +13,16 @@ export const authOptions = {
         email: { label: "email", type: "email" },
         password: { label: "password", type: "password" },
       },
-      async authorize(credentials, request) {
+      async authorize(
+        credentials: { email?: string; password?: string } | undefined,
+        request: any
+      ) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Missing credentials");
+        }
         await connectDb();
         const email = credentials.email;
-        const password = credentials.password as string;
+        const password = credentials.password;
         const user = await User.findOne({ email });
         if (!user) {
           throw new Error("User Doesn't Exist");
@@ -44,9 +50,9 @@ export const authOptions = {
     },
     session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.name = token.name as string;
-        session.user.email = token.email as string;
+        session.user.id = token.id! as string;
+        session.user.name = token.name! as string;
+        session.user.email = token.email! as string;
       }
       return session;
     },
@@ -56,11 +62,11 @@ export const authOptions = {
     error: "/login",
   },
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as const,
     maxAge: 30 * 24 * 60 * 60 * 1000,
   },
   secret: process.env.AUTH_SECRET,
-} satisfies NextAuthConfig;
+} satisfies NextAuthOptions;
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
